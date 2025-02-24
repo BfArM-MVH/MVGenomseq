@@ -1,6 +1,6 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "title": "Metadata Submission Genomic Data Center (GRZ)",
     "description": "General metadata schema for submissions to the GRZ",
     "type": "object",
@@ -40,7 +40,7 @@
           },
           "tanG": {
             "type": "string",
-            "description": "The VNg of the genomic data of the patient that will be reimbursed --> a unique 32-length byte code represented in a hex string of length 64.",
+            "description": "The VNg of the genomic data of the index patient that will be reimbursed --> a unique 32-length byte code represented in a hex string of length 64.",
             "pattern": "^[a-fA-F0-9]{64}$"
           },
           "localCaseId": {
@@ -92,19 +92,16 @@
         "items": {
           "type": "object",
           "required": [
-            "tanG",
+            "donorPseudonym",
             "gender",
             "relation",
-            "mvConsentDate",
-            "mvConsentVersion",
-            "mvConsentScope",
+            "mvConsent",
             "labData"
           ],
           "properties": {
-            "tanG": {
+            "donorPseudonym": {
               "type": "string",
-              "description": "The VNg of the genomic data of the donor --> a unique 32-length byte code represented in a hex string of length 64.",
-              "pattern": "^[a-fA-F0-9]{64}$"
+              "description": "A unique identifier given by the Leistungserbringer for each donor of a single, duo or trio sequencing; the donorPseudonym needs to be identifiable by the Leistungserbringer in case of changes to the consents by one of the donors. For Index patient use TanG."
             },
             "localCaseId": {
               "type": "string",
@@ -129,98 +126,97 @@
                 "brother",
                 "sister",
                 "child",
-                "self",
+                "index",
                 "other"
               ]
             },
-            "mvConsentDate": {
-              "type": "string",
-              "description": "Date of the signature of the Modellvorhaben consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "mvConsentPresentedDate": {
-              "type": "string",
-              "description": "Date of the presentation of the Modellvorhaben consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "mvConsentVersion": {
-              "type": "string",
-              "description": "Version of the research consent"
-            },
-            "mvConsentScope": {
-              "type": "object",
-              "description": "The scope of the Modellvorhaben consent given by the donor.",
-              "required": [
-                "consentMvSequencing",
-                "consentCaseIdentification",
-                "consentReIdentification"
-              ],
-              "properties": {
-                "consentMvSequencing": {
-                  "type": "boolean",
-                  "description": "The donor's consent to participate in the Modellvorhaben and sequencing."
-                },
-                "consentCaseIdentification": {
-                  "type": "boolean",
-                  "description": "The donor's consent to identify the case."
-                },
-                "consentReIdentification": {
-                  "type": "boolean",
-                  "description": "The donor's consent to be re-identified and to be re-contacted in case of new findings."
+            "mvConsent": {
+              "type": "array",
+              "description": "Multiple declarations of consent possible! must be assigned to the respective data sets.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "description": "Date of the signature of the Modellvorhaben consent; Date in ISO 8601 format YYYY-MM-DD",
+                    "format": "date"
+                  },
+                  "presentedDate": {
+                    "type": "string",
+                    "description": "Date of the presentation of the Modellvorhaben consent; Date in ISO 8601 format YYYY-MM-DD",
+                    "format": "date"
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Version of Modellvorhaben consent"
+                  },
+                  "scope": {
+                    "type": "array",
+                    "description": "The scope of the Modellvorhaben consent given by the donor.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "permit", 
+                            "deny"
+                          ]
+                        }  
+                      },
+                      "date": {
+                        "type": "string",
+                        "format": "date"
+                      },
+                      "domain": {
+                        "type": "string",
+                        "description": "The domain of the Modellvorhaben consent which is affected",
+                        "enum": [
+                          "mvSequencing", 
+                          "reIdentification", 
+                          "caseIdentification"
+                        ]
+                      } 
+                    } 
+                  }
                 }
               }
             },
-            "mvConsentTerminationDate": {
-              "type": "string",
-              "description": "Date of the termination of the Modellvorhaben consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "mvConsentTerminationScope": {
-              "type": "object",
-              "description": "The scope of the termination of the Modellvorhaben consent.",
-              "properties": {
-                "consentMvSequencingTermination": {
-                  "type": "boolean",
-                  "description": "The patient's termination of the Modellvorhaben consent to participate in the Modellvorhaben and sequencing"
-                },
-                "consentCaseIdentificationTermination": {
-                  "type": "boolean",
-                  "description": "The patient's termination of the Modellvorhaben consent to identify the case"
-                },
-                "consentReIdentificationTermination": {
-                  "type": "boolean",
-                  "description": "The patient's termination of the Modellvorhaben consent to re-identify the case and to re-contact the patient in case of new findings"
+            "researchConsent": {
+              "type": "array",
+              "description": "Multiple declarations of consent possible! must be assigned to the respective data sets.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "date": {
+                    "type": "string",
+                    "description": "Date of the signature of the research consent; Date in ISO 8601 format YYYY-MM-DD",
+                    "format": "date"
+                  },
+                  "presentedDate": {
+                    "type": "string",
+                    "description": "Date of the presentation of the research consent; Date in ISO 8601 format YYYY-MM-DD",
+                    "format": "date"
+                  },
+                  "version": {
+                    "type": "string",
+                    "description": "Version of the research consent"
+                  },
+                  "scope": {
+                    "type": "string",
+                    "description": "Scope of the research consent in MII JSON format, all details inside."
+                  },
+                  "revocationDate": {
+                    "type": "string",
+                    "description": "Date of the revocation of the research consent; Date in ISO 8601 format YYYY-MM-DD",
+                    "format": "date"
+                  },
+                  "revocationScope": {
+                    "type": "string",
+                    "description": "Scope of the research consent revocation in MII JSON format, all details inside."
+                  }
                 }
               }
-            },
-            "researchConsentDate": {
-              "type": "string",
-              "description": "Date of the signature of the research consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "researchConsentPresentedDate": {
-              "type": "string",
-              "description": "Date of the presentation of the research consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "researchConsentVersion": {
-              "type": "string",
-              "description": "Version of the research consent"
-            },
-            "researchConsentScope": {
-              "type": "object",
-              "description": "Scope of the research consent given by the patient; shall be given in JSON format.",
-              "properties": {}
-            },
-            "researchConsentRevocationDate": {
-              "type": "string",
-              "description": "Date of the revocation of the research consent; Date in ISO 8601 format YYYY-MM-DD",
-              "format": "date"
-            },
-            "researchConsentRevocationScope": {
-              "type": "object",
-              "description": "Scope of the revocation of the research consent given by the patient; shall be given in JSON format",
-              "properties": {}
             },
             "labData": {
               "type": "array",
@@ -415,8 +411,8 @@
                           "type": "string",
                           "description": "Method used to determine cell count.",
                           "enum": [
-                            "Pathology",
-                            "Bioinformatics",
+                            "pathology",
+                            "bioinformatics",
                             "other",
                             "unknown"
                           ]
@@ -436,7 +432,6 @@
                       "minCoverage",
                       "targetedRegionsAboveMinCoverage",
                       "files",
-                      "readLength",
                       "nonCodingVariants",
                       "callerUsed"
                     ],
@@ -451,7 +446,11 @@
                       },
                       "referenceGenome": {
                         "type": "string",
-                        "description": "Reference genome used"
+                        "description": "Reference genome used according to the Genome Reference Consortium (https://www.ncbi.nlm.nih.gov/grc)",
+                        "enum": [
+                          "GRCh37",
+                          "GRCh38"
+                        ]
                       },
                       "percentBasesAboveQualityThreshold": {
                         "type": "object",
@@ -487,11 +486,6 @@
                         "minimum": 0,
                         "maximum": 1
                       },
-                      "readLength": {
-                        "type": "integer",
-                        "description": "The read length; in the case of long-read sequencing it is the rounded average read length.",
-                        "minimum": 0
-                      },
                       "nonCodingVariants": {
                         "type": "boolean",
                         "description": "The analysis includes non-coding variants -> true or false"
@@ -526,7 +520,8 @@
                             "filePath",
                             "fileType",
                             "fileChecksum",
-                            "fileSizeInBytes"
+                            "fileSizeInBytes",
+                            "readLength"
                           ],
                           "properties": {
                             "filePath": {
@@ -568,6 +563,11 @@
                                 "R2"
                               ],
                               "description": "Indicates the read order for paired-end reads."
+                            },
+                            "readLength": {
+                              "type": "integer",
+                              "description": "The read length; in the case of long-read sequencing it is the rounded average read length.",
+                              "minimum": 0
                             },
                             "flowcellId": {
                               "type": "string",
